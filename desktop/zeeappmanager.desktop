@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=ZeeArch Manager
+Comment=Manage Arch packages with ZeeArch Manager
+Exec=sh -c '"/home/snow/My Projects/C#/Zee App Manager/ZeeAppManager/launch_zeeapp.sh"'
+Terminal=true
+Type=Application
+Icon=utilities-terminal
+Categories=Utility;
