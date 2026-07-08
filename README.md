@@ -1,2 +1,2 @@
 # Zee-Arch-App-Manager
-"ZAAM" Zee Arch App Manager . FIX / ADD / REMOVE in one APP
+"ZAAM" Zee Arch App Manager . FIX / ADD / REMOVE .In one App
