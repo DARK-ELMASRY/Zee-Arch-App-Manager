@@ -1,46 +1,52 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ZeeAppManager
 {
+    // InstallMenu handles the install package submenu and related actions.
     internal static class InstallMenu
     {
+        // Run displays the install submenu and loops until the user returns.
         internal static void Run()
         {
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("Install packages:");
-                Console.WriteLine("1. Most installed packages");
-                Console.WriteLine("2. Search package names");
-                Console.WriteLine("3. Enter package names manually");
-                Console.WriteLine("4. Back to main menu");
-                Console.Write("Choice: ");
-
-                if (!int.TryParse(Console.ReadLine(), out var installChoice))
+                // Each time the submenu is shown, build the static list of install actions.
+                var options = new[]
                 {
-                    Console.WriteLine("Invalid input. Please enter a number.");
-                    ContinuePrompt();
-                    continue;
+                    "Most installed packages",
+                    "Search package names",
+                    "Enter package names manually",
+                    "Back to main menu"
+                };
+
+                // Show the install menu and store the selected option index.
+                var selectedIndex = ConsoleMenu.ShowMenu("Install packages:", options);
+                if (selectedIndex == -1 || selectedIndex == 3)
+                {
+                    return;
                 }
 
-                switch (installChoice)
+                switch (selectedIndex)
                 {
-                    case 1:
+                    case 0:
+                        // Install from a curated list of popular packages.
                         RunInstallMostInstalled();
                         ContinuePrompt();
                         break;
-                    case 2:
+                    case 1:
+                        // Search the Arch Linux package repository by name.
                         RunPacmanSearchRepo();
                         ContinuePrompt();
                         break;
-                    case 3:
+                    case 2:
+                        // Let the user type packages manually.
                         RunManualInstall();
                         ContinuePrompt();
                         break;
-                    case 4:
-                        return;
                     default:
+                        // Handle invalid selection values gracefully.
                         Console.WriteLine("Invalid choice.");
                         ContinuePrompt();
                         break;
@@ -48,6 +54,8 @@ namespace ZeeAppManager
             }
         }
 
+        // RunManualInstall asks the user for package names and installs them.
+        // Prompt the user to enter package names manually and install them.
         private static void RunManualInstall()
         {
             Console.WriteLine("Enter package names separated by spaces.");
@@ -63,93 +71,37 @@ namespace ZeeAppManager
 
             if (packages.Trim().Equals("back", StringComparison.OrdinalIgnoreCase))
             {
+                // Return without doing anything when the user requests back.
                 return;
             }
 
             PacmanHelper.RunPacmanInstall(packages.Trim());
         }
 
+        // Show a curated list of commonly installed apps and allow multi-select.
         private static void RunInstallMostInstalled()
         {
             string[] packages = { "firefox", "code", "discord", "steam", "spotify", "libreoffice" };
-
-            while (true)
+            var selectedIndexes = ConsoleMenu.ShowMultiSelect("Most installed packages:\nUse Space to select packages to install:", packages);
+            if (selectedIndexes.Count == 0)
             {
-                Console.Clear();
-                Console.WriteLine("Most installed packages:");
-                for (int i = 0; i < packages.Length; i++)
-                {
-                    Console.WriteLine($"{i + 1}. {packages[i]}");
-                }
-                Console.WriteLine("0. Install all");
-                Console.WriteLine("7. Back to install menu");
-                Console.WriteLine("Tip: select numbers like 1 2 4 or type 0 to install all.");
-                Console.Write("Select package numbers separated by spaces (or type back): ");
-
-                var selection = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(selection))
-                {
-                    Console.WriteLine("No selection entered.");
-                    ContinuePrompt();
-                    continue;
-                }
-
-                var tokens = selection.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                var selectedPackages = new List<string>();
-                bool installAll = false;
-                bool goBack = false;
-
-                foreach (var token in tokens)
-                {
-                    if (token.Equals("0", StringComparison.OrdinalIgnoreCase))
-                    {
-                        installAll = true;
-                        break;
-                    }
-                    if (token.Equals("7", StringComparison.OrdinalIgnoreCase) || token.Equals("back", StringComparison.OrdinalIgnoreCase))
-                    {
-                        goBack = true;
-                        break;
-                    }
-
-                    if (!int.TryParse(token, out var index) || index < 1 || index > packages.Length)
-                    {
-                        Console.WriteLine($"Invalid selection: {token}");
-                        selectedPackages.Clear();
-                        break;
-                    }
-
-                    selectedPackages.Add(packages[index - 1]);
-                }
-
-                if (goBack)
-                {
-                    return;
-                }
-
-                if (installAll)
-                {
-                    selectedPackages = packages.ToList();
-                }
-
-                if (selectedPackages.Count == 0)
-                {
-                    ContinuePrompt();
-                    continue;
-                }
-
-                var packageList = string.Join(' ', selectedPackages.Distinct());
-                Console.WriteLine($"Installing: {packageList}");
-                PacmanHelper.RunPacmanInstall(packageList);
+                Console.WriteLine("No packages selected.");
                 return;
             }
+
+            // Build a cleaned list of unique package names from the selected indexes.
+            var packageList = string.Join(' ', selectedIndexes.Select(i => packages[i]).Distinct());
+            Console.WriteLine($"Installing: {packageList}");
+            PacmanHelper.RunPacmanInstall(packageList);
         }
 
+        // Delegate repository search to PacmanHelper, which handles the UI and install confirmation.
         private static void RunPacmanSearchRepo()
         {
             PacmanHelper.RunPacmanSearchRepo();
         }
 
+        // Continue prompt pauses after a completed install action.
         private static void ContinuePrompt()
         {
             Console.WriteLine("Press Enter to continue.");
