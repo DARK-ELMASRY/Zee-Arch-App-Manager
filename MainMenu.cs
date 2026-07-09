@@ -17,19 +17,20 @@ namespace ZeeAppManager
             {
                 PrintHeader();
 
-            // Build the top-level main menu choices shown to the user.
-            var options = new[]
-            {
-                "Update package database (pacman -Sy)",
-                "Update Arch Linux 'Full Upgrade' (pacman -Syu)",
-                "Install Packages",
-                "Remove Packages",
-                "Exit"
-            };
+                // Build the top-level main menu choices shown to the user.
+                var options = new[]
+                {
+                    "Update package database (pacman -Sy)",
+                    "Update Arch Linux 'Full Upgrade' (pacman -Syu)",
+                    "Install Packages",
+                    "Remove Packages",
+                    "System Management",
+                    "Exit"
+                };
 
-            // Show the menu and wait for the user to select an item.
-            // The console menu returns -1 when the user presses Escape.
-            var selectedIndex = ConsoleMenu.ShowMenu("Please select an option:", options);
+                // Show the menu and wait for the user to select an item.
+                // The console menu returns -1 when the user presses Escape.
+                var selectedIndex = ConsoleMenu.ShowMenu("Please select an option:", options);
                 if (selectedIndex == -1)
                 {
                     Console.WriteLine("Exiting.");
@@ -57,6 +58,10 @@ namespace ZeeAppManager
                         RemoveMenu.Run();
                         break;
                     case 4:
+                        // Enter the system management submenu.
+                        SystemMenu.Run();
+                        break;
+                    case 5:
                         // Exit the application gracefully.
                         Console.WriteLine("Exiting.");
                         return;

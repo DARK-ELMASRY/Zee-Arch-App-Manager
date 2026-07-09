@@ -58,7 +58,7 @@ namespace ZeeAppManager
                 return;
             }
 
-            ExecuteCommand($"sudo pacman -Rns --needed {packageList}", $"Removing: {packageList}");
+            ExecuteCommand($"sudo pacman -Rns {packageList}", $"Removing: {packageList}");
         }
 
         // RunPacmanScan lists installed packages and allows the user to search and select one.
